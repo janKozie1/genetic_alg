@@ -140,6 +140,10 @@ const ConfigForm = ({children}: Props) => {
                     return set(path, Number(value), acc)
                 } 
 
+                if (value === 'on') {
+                    return set(path, true, acc)
+                }
+
                 return set(path, value, acc)
             }, {  })
 
@@ -200,7 +204,7 @@ const ConfigForm = ({children}: Props) => {
 
     const crossoversPerType = useRef<Record<SelectedConfig['encoding']['fn'], SelectedConfig['crossover']['fn'][]>>({
         binary: ['nPoint', 'shuffle', 'uniform', 'discrete'],
-        none: ['arithmetic', 'blendA', 'blendAB', 'average', 'flat'],
+        none: ['arithmetic', 'blendA', 'blendAB', 'average', 'flat', 'linear'],
     })
 
     useEffect(() => {

@@ -100,5 +100,6 @@ export const crossoverDefaultConfig: ParamsShapeToDefaultValues<CrossoverParams>
     average: {},
     blendA: { alpha: 0},
     blendAB: {alpha: 0, beta: 0},
-    flat: {}
+    flat: {},
+    linear: {}
 }

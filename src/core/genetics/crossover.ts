@@ -1,4 +1,6 @@
+import { orderBy } from "lodash";
 import { BaseArg } from ".";
+import fns from "../fn";
 import { isNil } from "../utils/guards";
 import { clampToRange } from "../utils/math";
 import { Binary } from "../utils/types";
@@ -86,11 +88,10 @@ const discrete: CrossoverFN<BaseCrossoverFNConfig, Binary> = ({dependencies}) =>
 }
 
 type ArithmeticConfig = BaseCrossoverFNConfig & Readonly<{constant: boolean}>
-const arithmetic: CrossoverFN<ArithmeticConfig, number> = ({dependencies, config}) => ({
-    constant
-}) => {
+const arithmetic: CrossoverFN<ArithmeticConfig, number> = ({dependencies, config}) => (arg) => {
+    const { constant } = isNil(arg) ? {constant: false} : arg;
     const sharedK = dependencies.random.randomNumberInRange(0, 1)
-
+    
     return ({variablesA, variablesB}) =>  {
         const k = constant 
             ? sharedK
@@ -160,6 +161,32 @@ const flat: CrossoverFN<BaseCrossoverFNConfig, number> = ({dependencies, config}
     })]
 }
 
+const linear: CrossoverFN<BaseCrossoverFNConfig, number> = ({dependencies, config}) => () => ({variablesA, variablesB}) => {
+    const z = variablesA.map((variable, i) => {
+        const correspondingVariable = variablesB[i];
+        return clampToRange(config.searchRange, 0.5 * variable + 0.5 * correspondingVariable);
+    })
+
+    const v = variablesA.map((variable, i) => {
+        const correspondingVariable = variablesB[i];
+        return clampToRange(config.searchRange, 1.5 * variable - 0.5 * correspondingVariable);
+    })
+
+    const w = variablesA.map((variable, i) => {
+        const correspondingVariable = variablesB[i];
+        return clampToRange(config.searchRange, -0.5 * variable + 1.5 * correspondingVariable);
+    })
+
+    const evaluated = [z,v,w].map((variables) => ({
+        value: fns[config.fn](...variables),
+        variables
+    }));
+
+    const sorted = orderBy(evaluated, ['value'], ['asc']);
+
+    return sorted.slice(0, 2).map((entry) => entry.variables);
+}
+
 export default (dependencies: BaseArg) => ({
     nPoint: nPoint(dependencies),
     uniform: uniform(dependencies),
@@ -170,4 +197,5 @@ export default (dependencies: BaseArg) => ({
     blendAB: blendAB(dependencies),
     average: average(dependencies),
     flat: flat(dependencies),
+    linear: linear(dependencies)
 })
