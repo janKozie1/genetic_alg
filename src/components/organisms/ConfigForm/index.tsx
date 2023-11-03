@@ -176,7 +176,7 @@ const ConfigForm = ({children}: Props) => {
 
     const fieldValueToInput = (fieldName: string, fieldValueType: number | string[] | unknown, params?: {}, defaultValue?: string) => {
         if (isNumber(fieldValueType)) {
-            return <Input {...params} type="number" name={fieldName} defaultValue={defaultValue ?? fieldValueType} />
+            return <Input step="0.0001" {...params} type="number" name={fieldName} defaultValue={defaultValue ?? fieldValueType} />
         }
 
         if (isArray(fieldValueType)) {
